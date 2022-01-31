@@ -236,9 +236,14 @@ def pregunta_12():
     myTable['_c5'] = myTable['_c5a'] + ":" + myTable['_c5b'].astype(str)
     myTable = tbl2.groupby('_c0')
     myTable = myTable['_c5'].apply(dobleValueChain)
-    myDF = pd.DataFrame(myTable)
-    myDF.columns = ["_c0", "_c5"]
-    return myDF
+    # myDF = pd.DataFrame(myTable)
+    # myDF.columns = ["_c0", "_c5"]
+    myDict = {}
+    for i in myTable.index:
+        myDict[i] = myTable[i]
+    df = pd.DataFrame([[key, myDict[key]] for key in myDict.keys()], columns=['_c0', '_c5'])
+    return df
+print(pregunta_12())
 
 def pregunta_13():
     """
@@ -254,10 +259,9 @@ def pregunta_13():
     E    275
     Name: _c5b, dtype: int64
     """
-    tabla = tbl0
-    tabla2 = tbl2
-    sub = tabla2.groupby("_c0")
-    tabla2 = sub['_c5b'].sum()
-    tabla['_c5b'] = pd.DataFrame(tabla2)['_c5b']
-    tabla = tabla.groupby("_c1")
-    return pd.DataFrame(tabla['_c5b'].sum())
+    tabla = pd.read_csv('tbl0.tsv',delimiter='\t')
+    tabla2 = pd.read_csv('tbl2.tsv',delimiter='\t')
+    sub = tabla2.groupby("_c0").sum()
+    tabla["_c5b"] = sub["_c5b"]
+    sub2 = tabla.groupby("_c1").sum()
+    return sub2["_c5b"]
