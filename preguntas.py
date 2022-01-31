@@ -7,6 +7,7 @@ Este archivo contiene las preguntas que se van a realizar en el laboratorio.
 Utilice los archivos `tbl0.tsv`, `tbl1.tsv` y `tbl2.tsv`, para resolver las preguntas.
 
 """
+from numpy import number
 import pandas as pd
 
 tbl0 = pd.read_csv("tbl0.tsv", sep="\t")
@@ -22,8 +23,7 @@ def pregunta_01():
     40
 
     """
-    return
-
+    return tbl0.shape[0]
 
 def pregunta_02():
     """
@@ -33,8 +33,7 @@ def pregunta_02():
     4
 
     """
-    return
-
+    return tbl0.shape[1]
 
 def pregunta_03():
     """
@@ -50,8 +49,8 @@ def pregunta_03():
     Name: _c1, dtype: int64
 
     """
-    return
-
+    subTable = tbl0.groupby('_c1')
+    return subTable.size()
 
 def pregunta_04():
     """
@@ -65,8 +64,8 @@ def pregunta_04():
     E    4.785714
     Name: _c2, dtype: float64
     """
-    return
-
+    subTable = tbl0.groupby('_c1')
+    return subTable['_c2'].mean()
 
 def pregunta_05():
     """
@@ -82,8 +81,8 @@ def pregunta_05():
     E    9
     Name: _c2, dtype: int64
     """
-    return
-
+    subTable = tbl0.groupby('_c1')
+    return subTable['_c2'].max()
 
 def pregunta_06():
     """
@@ -94,8 +93,10 @@ def pregunta_06():
     ['A', 'B', 'C', 'D', 'E', 'F', 'G']
 
     """
-    return
-
+    myList = tbl1['_c4'].tolist()
+    myUniqueList = list(set(myList))
+    myUpperCaseList = [i.upper() for i in myUniqueList]
+    return sorted(myUpperCaseList)
 
 def pregunta_07():
     """
@@ -110,8 +111,8 @@ def pregunta_07():
     E    67
     Name: _c2, dtype: int64
     """
-    return
-
+    subTable = tbl0.groupby('_c1')
+    return subTable['_c2'].sum()
 
 def pregunta_08():
     """
@@ -128,8 +129,9 @@ def pregunta_08():
     39   39   E    5  1998-01-26    44
 
     """
-    return
-
+    subTable = tbl0
+    subTable['suma'] = pd.to_numeric(subTable['_c0']) + pd.to_numeric(subTable['_c2'])
+    return subTable
 
 def pregunta_09():
     """
@@ -146,8 +148,18 @@ def pregunta_09():
     39   39   E    5  1998-01-26  1998
 
     """
-    return
+    subTable = tbl0
+    subTable['year'] = (subTable['_c3'].str.split('-', n=1))
+    myList = subTable['year'].tolist();
+    myList = [i[0] for i in myList]
+    subTable['year'] = myList
+    return subTable
 
+def numbersChain(grupo):
+    numbersList = []
+    for i in grupo:
+        numbersList.append(str(i))
+    return(":".join(sorted(numbersList)))
 
 def pregunta_10():
     """
@@ -163,7 +175,12 @@ def pregunta_10():
     3   D                  1:2:3:5:5:7
     4   E  1:1:2:3:3:4:5:5:5:6:7:8:8:9
     """
-    return
+    c0List = ["A", "B", "C", "D", "E"]
+    subTable = tbl0.groupby('_c1')
+    myTable = subTable['_c2'].apply(numbersChain)
+    # return pd.DataFrame([c0List, myTable.tolist()])
+    myTable = pd.DataFrame(myTable)
+    return myTable
 
 
 def pregunta_11():
