@@ -7,6 +7,9 @@ Este archivo contiene las preguntas que se van a realizar en el laboratorio.
 Utilice los archivos `tbl0.tsv`, `tbl1.tsv` y `tbl2.tsv`, para resolver las preguntas.
 
 """
+from distutils.util import change_root
+from itertools import chain
+from tokenize import group
 from numpy import number
 import pandas as pd
 
@@ -175,13 +178,17 @@ def pregunta_10():
     3   D                  1:2:3:5:5:7
     4   E  1:1:2:3:3:4:5:5:5:6:7:8:8:9
     """
-    c0List = ["A", "B", "C", "D", "E"]
     subTable = tbl0.groupby('_c1')
     myTable = subTable['_c2'].apply(numbersChain)
-    # return pd.DataFrame([c0List, myTable.tolist()])
     myTable = pd.DataFrame(myTable)
     return myTable
 
+
+def commaSeparate(group):
+    chainsList = []
+    for letter in group:
+        chainsList.append(str(letter))
+    return  (",".join(sorted(chainsList)))
 
 def pregunta_11():
     """
@@ -199,8 +206,15 @@ def pregunta_11():
     38   38      d,e
     39   39    a,d,f
     """
-    return
+    myTable = tbl1.groupby('_c0')
+    myTable = myTable['_c4'].apply(commaSeparate)
+    return pd.DataFrame(myTable)
 
+def dobleValueChain(group):
+    chain = []
+    for i in group:
+        chain.append(i)
+    return (",".join(sorted(chain))) 
 
 def pregunta_12():
     """
@@ -217,8 +231,11 @@ def pregunta_12():
     38   38                    eee:0,fff:9,iii:2
     39   39                    ggg:3,hhh:8,jjj:5
     """
-    return
-
+    myTable = pd.DataFrame(tbl2)
+    myTable['_c5'] = myTable['_c5a'] + ":" + myTable['_c5b'].astype(str)
+    myTable = tbl2.groupby('_c0')
+    myTable = myTable['_c5'].apply(dobleValueChain)
+    return pd.DataFrame(myTable)
 
 def pregunta_13():
     """
@@ -234,4 +251,10 @@ def pregunta_13():
     E    275
     Name: _c5b, dtype: int64
     """
-    return
+    tabla = tbl0
+    tabla2 = tbl2
+    sub = tabla2.groupby("_c0")
+    tabla2 = sub['_c5b'].sum()
+    tabla['_c5b'] = pd.DataFrame(tabla2)['_c5b']
+    tabla = tabla.groupby("_c1")
+    return pd.DataFrame(tabla['_c5b'].sum())
