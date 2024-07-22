@@ -7,6 +7,10 @@ Este archivo contiene las preguntas que se van a realizar en el laboratorio.
 Utilice los archivos `tbl0.tsv`, `tbl1.tsv` y `tbl2.tsv`, para resolver las preguntas.
 
 """
+from distutils.util import change_root
+from itertools import chain
+from tokenize import group
+from numpy import number
 import pandas as pd
 
 tbl0 = pd.read_csv("tbl0.tsv", sep="\t")
@@ -22,8 +26,7 @@ def pregunta_01():
     40
 
     """
-    return
-
+    return tbl0.shape[0]
 
 def pregunta_02():
     """
@@ -33,8 +36,7 @@ def pregunta_02():
     4
 
     """
-    return
-
+    return tbl0.shape[1]
 
 def pregunta_03():
     """
@@ -50,8 +52,8 @@ def pregunta_03():
     Name: _c1, dtype: int64
 
     """
-    return
-
+    subTable = tbl0.groupby('_c1')
+    return subTable.size()
 
 def pregunta_04():
     """
@@ -65,8 +67,8 @@ def pregunta_04():
     E    4.785714
     Name: _c2, dtype: float64
     """
-    return
-
+    subTable = tbl0.groupby('_c1')
+    return subTable['_c2'].mean()
 
 def pregunta_05():
     """
@@ -82,8 +84,8 @@ def pregunta_05():
     E    9
     Name: _c2, dtype: int64
     """
-    return
-
+    subTable = tbl0.groupby('_c1')
+    return subTable['_c2'].max()
 
 def pregunta_06():
     """
@@ -94,8 +96,10 @@ def pregunta_06():
     ['A', 'B', 'C', 'D', 'E', 'F', 'G']
 
     """
-    return
-
+    myList = tbl1['_c4'].tolist()
+    myUniqueList = list(set(myList))
+    myUpperCaseList = [i.upper() for i in myUniqueList]
+    return sorted(myUpperCaseList)
 
 def pregunta_07():
     """
@@ -110,8 +114,8 @@ def pregunta_07():
     E    67
     Name: _c2, dtype: int64
     """
-    return
-
+    subTable = tbl0.groupby('_c1')
+    return subTable['_c2'].sum()
 
 def pregunta_08():
     """
@@ -128,8 +132,9 @@ def pregunta_08():
     39   39   E    5  1998-01-26    44
 
     """
-    return
-
+    subTable = tbl0
+    subTable['suma'] = pd.to_numeric(subTable['_c0']) + pd.to_numeric(subTable['_c2'])
+    return subTable
 
 def pregunta_09():
     """
@@ -146,8 +151,18 @@ def pregunta_09():
     39   39   E    5  1998-01-26  1998
 
     """
-    return
+    subTable = tbl0
+    subTable['year'] = (subTable['_c3'].str.split('-', n=1))
+    myList = subTable['year'].tolist();
+    myList = [i[0] for i in myList]
+    subTable['year'] = myList
+    return subTable
 
+def numbersChain(grupo):
+    numbersList = []
+    for i in grupo:
+        numbersList.append(str(i))
+    return(":".join(sorted(numbersList)))
 
 def pregunta_10():
     """
@@ -163,8 +178,17 @@ def pregunta_10():
     3   D                  1:2:3:5:5:7
     4   E  1:1:2:3:3:4:5:5:5:6:7:8:8:9
     """
-    return
+    subTable = tbl0.groupby('_c1')
+    myTable = subTable['_c2'].apply(numbersChain)
+    myTable = pd.DataFrame(myTable)
+    return myTable
 
+
+def commaSeparate(group):
+    chainsList = []
+    for letter in group:
+        chainsList.append(str(letter))
+    return  (",".join(sorted(chainsList)))
 
 def pregunta_11():
     """
@@ -182,8 +206,20 @@ def pregunta_11():
     38   38      d,e
     39   39    a,d,f
     """
-    return
+    myTable = tbl1.groupby('_c0')
+    myTable = myTable['_c4'].apply(commaSeparate)
+    myDict = {}
+    for i in myTable.index:
+        myDict[i] = myTable[i]
+    df = pd.DataFrame([[key, myDict[key]] for key in myDict.keys()], columns=['_c0', '_c4'])
+    return df
 
+def dobleValueChain(group):
+    chain = []
+    for i in group:
+        chain.append(i)
+    return (",".join(sorted(chain))) 
+print(pregunta_11())
 
 def pregunta_12():
     """
@@ -200,8 +236,15 @@ def pregunta_12():
     38   38                    eee:0,fff:9,iii:2
     39   39                    ggg:3,hhh:8,jjj:5
     """
-    return
-
+    myTable = pd.DataFrame(tbl2)
+    myTable['_c5'] = myTable['_c5a'] + ":" + myTable['_c5b'].astype(str)
+    myTable = tbl2.groupby('_c0')
+    myTable = myTable['_c5'].apply(dobleValueChain)
+    myDict = {}
+    for i in myTable.index:
+        myDict[i] = myTable[i]
+    df = pd.DataFrame([[key, myDict[key]] for key in myDict.keys()], columns=['_c0', '_c5'])
+    return df
 
 def pregunta_13():
     """
@@ -217,4 +260,9 @@ def pregunta_13():
     E    275
     Name: _c5b, dtype: int64
     """
-    return
+    tabla = pd.read_csv('tbl0.tsv',delimiter='\t')
+    tabla2 = pd.read_csv('tbl2.tsv',delimiter='\t')
+    sub = tabla2.groupby("_c0").sum()
+    tabla["_c5b"] = sub["_c5b"]
+    sub2 = tabla.groupby("_c1").sum()
+    return sub2["_c5b"]
